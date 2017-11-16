@@ -55,6 +55,7 @@ Zend OPcache
 * Nginx
 * Mysql 5.7
 * Redis
+* MongoDB
 * Node 8.4, npm 5.4
 * Elasticsearch
 * Customized nginx file
