@@ -1,10 +1,10 @@
-#Docker template for new projects
+# Docker template for new projects
 
-##Description
+## Description
 
 In this repository you can see minimum required soft for web dev:
 
-##Features
+## Features
 
 * PHP 7.1 with modules:
 
@@ -75,14 +75,14 @@ You can change it in docker.env file
 
 For use Mysql with DB programms such as Mysql Workbench just use 127.0.0.1 as host
 
-##Installation
+## Installation
 
 1. Config docker-images/nginx-extended/default.conf for your's app dir and index file path
 2. Run `docker-compose up` 
 
-##Tips
+## Tips
 
-###Laravel DB config example
+### Laravel DB config example
 
 .env file
 
@@ -95,7 +95,7 @@ DB_USERNAME=docker
 DB_PASSWORD=docker
 DB_SOCKET = /tmp/mysql.sock
 ```
-###Symfony DB config example
+### Symfony DB config example
 
 parameters.yml file
 
@@ -109,11 +109,11 @@ database_password: 'docker'
 database_path: 'docker'
 ```
 
-###PHP modules
+### PHP modules
 
 You can install anything what you wont in php modules, just add needed modules to `docker-template/docker-images/php-extended/Dockerfile` 
 and run `docker-compose build` 
 
-###Access to bash
+### Access to bash
 
 sudo docker exec -i -t <container_id> /bin/bash
