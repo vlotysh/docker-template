@@ -3,9 +3,9 @@ services:
     mysql:
         image: mysql:5.7
         expose:
-          - '3306'
+          - '3307'
         ports:
-            - '3306:3306'
+            - '3307:3306'
         volumes:
             - ./data/mysql:/var/lib/mysql
         restart: on-failure
@@ -14,7 +14,7 @@ services:
     nginx:
         image: nginx:1.13
         ports:
-            - '80:80'
+            - '82:80'
         restart: on-failure
         volumes:
             - ./docker-images/nginx-extended/default.conf:/etc/nginx/conf.d/default.conf
@@ -26,22 +26,25 @@ services:
             - ./docker-images/php-extended/php.ini:/usr/local/etc/php/conf.d/custom.ini
             - ./:/code
     redis:
-      image: 'bitnami/redis:latest'
+      image: 'bitnami/redis:4.0.6-r1'
       environment:
         - ALLOW_EMPTY_PASSWORD=yes
+        - REDIS_PASSWORD=docker
       ports:
         - '6379:6379'
       volumes:
         - ./data/redis:/bitnami
+        - ./data/redis/conf/redis.conf:/opt/bitnami/redis/conf/redis.conf
     mongodb:
       image: mongo:latest
       ports:
         - '27017:27017'
-    elasticsearch:
-      image: elasticsearch
-      environment:
-        - cluster.name=docker-cluster
-        - bootstrap.memory_lock=true
-        - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+    pma:
+      image: 'phpmyadmin/phpmyadmin:latest'
       ports:
-        - '9200:9200'
+        - '8080:80'
+      environment:
+        - MYSQL_USER=docker
+        - MYSQL_ROOT_PASSWORD=docker 
+        - PMA_HOST=mysql
+
