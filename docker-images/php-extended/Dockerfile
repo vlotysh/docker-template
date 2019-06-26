@@ -61,10 +61,6 @@ RUN apt-get update && apt-get install -y \
   libmagickwand-dev --no-install-recommends
 RUN pecl install imagick && docker-php-ext-enable imagick
 
-# Intl
-RUN apt-get install -y libicu-dev
-RUN docker-php-ext-install -j$(nproc) intl
-
 # Compile and install xDebug
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
@@ -77,5 +73,9 @@ RUN apt-get install -y libxslt1-dev
 #install xsl
 RUN docker-php-ext-install xsl \
     && docker-php-ext-enable xsl
+
+#install zip
+RUN pecl install zip \
+    && docker-php-ext-enable zip
 
 RUN apt-get install -y libgearman-dev
