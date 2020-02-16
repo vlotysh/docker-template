@@ -48,6 +48,7 @@ xmlreader
 xmlwriter
 Zend OPcache
 zlib
+zip
 Xdebug
 Zend OPcache
 ```

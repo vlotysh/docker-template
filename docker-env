@@ -1,4 +1,17 @@
+#mysql
 MYSQL_ROOT_PASSWORD=root
 MYSQL_USER=docker
 MYSQL_PASSWORD=docker
 MYSQL_DATABASE=docker
+
+#redis
+ALLOW_EMPTY_PASSWORD=yes
+REDIS_HOST=redis
+
+#elastic
+cluster.name=docker-cluster
+bootstrap.memory_lock=true
+ES_JAVA_OPTS=-Xms512m -Xmx512m
+
+#pma
+PMA_HOST=mysql

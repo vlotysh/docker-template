@@ -1,4 +1,6 @@
 .DS_Store
 .idea/
+/data/
+/.idea/
 data/
 docker.env
