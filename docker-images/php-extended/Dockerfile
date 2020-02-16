@@ -1,17 +1,15 @@
-FROM php:7.1-fpm
+FROM php:7.4-fpm
 MAINTAINER Vladislav Lotysh <lotysh.vm@gmail.com>
 
 RUN apt-get update
 # update the repository sources list
 # and install dependencies
-RUN apt-get update \
-    && apt-get install -y curl \
+RUN apt-get update && apt-get install -y \
+    curl \
+    nano \
+    git \
+    zlib1g-dev \
     && apt-get -y autoclean
-
-RUN apt-get update && \
-     apt-get install -y \
-         zlib1g-dev \
-         && docker-php-ext-install zip
 
 # nvm environment variables
 ENV NVM_DIR /usr/local/nvm
@@ -28,54 +26,53 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.31.2/install.sh | b
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
-# Some basic extensions
-RUN docker-php-ext-install -j$(nproc) json mbstring opcache pdo pdo_mysql mysqli
-
-# Curl
-RUN apt-get install -y libcurl4-openssl-dev \
-    && docker-php-ext-install -j$(nproc) curl
-
-# GD
+# Libs
 RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
         libmcrypt-dev \
         libpng-dev \
         libjpeg-dev \
         libpng-dev \
-    && docker-php-ext-install iconv mcrypt \
-    && docker-php-ext-configure gd \
-        --enable-gd-native-ttf \
-        --with-freetype-dir=/usr/include/freetype2 \
-        --with-png-dir=/usr/include \
-        --with-jpeg-dir=/usr/include \
-    && docker-php-ext-install gd \
-    && docker-php-ext-install mbstring \
-    && docker-php-ext-enable gd
+        libicu-dev \
+        libmagickwand-dev --no-install-recommends \
+        libcurl4-openssl-dev \
+        libxslt1-dev
 
-# Intl
-RUN apt-get install -y libicu-dev
-RUN docker-php-ext-install -j$(nproc) intl
+# Pecl packages
+RUN pecl install \
+    imagick \
+    xdebug \
+    zip
 
-#install Imagemagick & PHP Imagick ext
-RUN apt-get update && apt-get install -y \
-  libmagickwand-dev --no-install-recommends
-RUN pecl install imagick && docker-php-ext-enable imagick
+# Php modules
+RUN docker-php-ext-install -j$(nproc) \
+    json \
+    mbstring \
+    opcache \
+    pdo \
+    pdo_mysql \
+    mysqli \
+    iconv \
+    mcrypt \
+    gd \
+    mbstring \
+    intl \
+    curl \
+    exif \
+    xsl \
+    zip
 
-# Compile and install xDebug
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug
+# gd modules config
+RUN docker-php-ext-configure gd \
+    --enable-gd-native-ttf \
+    --with-freetype-dir=/usr/include/freetype2 \
+    --with-png-dir=/usr/include \
+    --with-jpeg-dir=/usr/include
 
-#install exif
-RUN docker-php-ext-install exif
-
-RUN apt-get install -y libxslt1-dev
-
-#install xsl
-RUN docker-php-ext-install xsl \
-    && docker-php-ext-enable xsl
-
-#install zip
-RUN pecl install zip \
-    && docker-php-ext-enable zip
-
-RUN apt-get install -y libgearman-dev
+# php modules enable
+RUN docker-php-ext-enable \
+    imagick \
+    xdebug \
+    xsl \
+    zip \
+    gd
