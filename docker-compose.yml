@@ -21,6 +21,8 @@ services:
             - ./:/code
     php-fpm:
         build: ./docker-images/php-extended
+        env_file:
+          - docker.env
         restart: on-failure
         volumes:
             - ./docker-images/php-extended/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
