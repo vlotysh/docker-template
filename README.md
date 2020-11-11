@@ -6,7 +6,7 @@ In this repository you can see minimum required soft for web dev:
 
 ## Features
 
-* PHP 7.1 with modules:
+* PHP 7.4 with modules:
 
 ```
 ctype
@@ -57,7 +57,7 @@ Zend OPcache
 * Mysql 5.7
 * Redis
 * MongoDB
-* Node 8.4, npm 5.4
+* Node 15.2, npm 6.4
 * Elasticsearch
 * Customized nginx file
 * Customized PHP ini file
@@ -80,7 +80,8 @@ For use Mysql with DB programms such as Mysql Workbench just use 127.0.0.1 as ho
 ## Installation
 
 1. Config docker-images/nginx-extended/default.conf for your's app dir and index file path
-2. Run `docker-compose up` 
+2. Run `cp docker.env.example docker.env`
+3. Run `docker-compose up` 
 
 ## Tips
 

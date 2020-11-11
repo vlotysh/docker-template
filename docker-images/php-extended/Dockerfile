@@ -10,11 +10,25 @@ RUN apt-get update && apt-get install -y \
     git \
     zlib1g-dev \
     libzip-dev \
+    libfreetype6-dev \
+    libmcrypt-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libonig-dev \
+    libicu-dev \
+    libmagickwand-dev --no-install-recommends \
+    libcurl4-openssl-dev \
+    libxslt1-dev \
+    libwebp-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev libxpm-dev \
+    libfreetype6-dev \
     && apt-get -y autoclean
 
 # nvm environment variables
 ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 8.4
+ENV NODE_VERSION 15.2
 
 # Install nvm with node and npm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.31.2/install.sh | bash \
@@ -26,23 +40,6 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.31.2/install.sh | b
 # add node and npm to path so the commands are available
 ENV NODE_PATH ${NVM_DIR}/v${NODE_VERSION}/lib/node_modules
 ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:$PATH
-
-# Libs
-RUN apt-get update && apt-get install -y \
-    libfreetype6-dev \
-        libmcrypt-dev \
-        libpng-dev \
-        libjpeg-dev \
-        libpng-dev \
-        libonig-dev \
-        libicu-dev \
-        libmagickwand-dev --no-install-recommends \
-        libcurl4-openssl-dev \
-        libxslt1-dev \
-        libwebp-dev \
-        libjpeg62-turbo-dev \
-        libpng-dev libxpm-dev \
-        libfreetype6-dev
 
 # Pecl packages
 RUN pecl install \

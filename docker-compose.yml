@@ -29,11 +29,10 @@ services:
             - ./docker-images/php-extended/php.ini:/usr/local/etc/php/conf.d/custom.ini
             - ./:/code
     redis:
-      image: 'bitnami/redis:latest'
-      env_file:
-        - docker.env
-      ports:
-        - '6379:6379'
+      image: bitnami/redis:latest
+      user: root
+      environment:
+        ALLOW_EMPTY_PASSWORD: 'yes'
       volumes:
         - ./data/redis:/bitnami
     mongodb:
