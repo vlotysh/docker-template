@@ -1,80 +1,70 @@
-FROM php:7.4-fpm
+# syntax=docker/dockerfile:experimental
+FROM php:8.0-fpm as runtime
+
 MAINTAINER Vladislav Lotysh <lotysh.vm@gmail.com>
 
-RUN apt-get update
-# update the repository sources list
-# and install dependencies
+USER root
 RUN apt-get update && apt-get install -y \
+    ssh \
     curl \
-    nano \
+    wget \
     git \
-    zlib1g-dev \
-    libzip-dev \
-    libfreetype6-dev \
-    libmcrypt-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libpng-dev \
-    libonig-dev \
-    libicu-dev \
-    libmagickwand-dev --no-install-recommends \
-    libcurl4-openssl-dev \
-    libxslt1-dev \
-    libwebp-dev \
-    libjpeg62-turbo-dev \
-    libpng-dev libxpm-dev \
-    libfreetype6-dev \
-    && apt-get -y autoclean
-
-# nvm environment variables
-ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 15.2
-
-# Install nvm with node and npm
-RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.31.2/install.sh | bash \
-    && . ${NVM_DIR}/nvm.sh \
-    && nvm install ${NODE_VERSION} \
-    && nvm alias default ${NODE_VERSION} \
-    && nvm use default
-
-# add node and npm to path so the commands are available
-ENV NODE_PATH ${NVM_DIR}/v${NODE_VERSION}/lib/node_modules
-ENV PATH ${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:$PATH
-
-# Pecl packages
-RUN pecl install \
-    imagick \
-    xdebug \
     zip \
-    mcrypt-1.0.3
+    unzip \
+    libxml2-dev \
+    procps\
+    cron\
+    libpq-dev \
+    libmcrypt-dev \
+    postgresql-client \
+    && apt-get autoremove -y -f \
+    && apt-get clean -y
 
-# Php modules
-RUN docker-php-ext-install \
-    json \
-    opcache \
+# memcached
+RUN apt-get update && apt-get install -y libmemcached-dev zlib1g-dev
+RUN pecl install memcached
+RUN docker-php-ext-enable memcached
+#RUN docker-php-ext-install -j$(nproc) memcached
+
+# Install php extensions
+RUN docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_mysql \
-    mysqli \
-    iconv \
-    gd \
     intl \
-    curl \
-    exif \
-    xsl \
-    zip \
-    bz2
+    soap \
+    bcmath \
+    pcntl
 
-# gd modules config
-RUN docker-php-ext-configure gd
+#Since xdebug 3.x has mode=off.
+RUN pecl install xdebug && docker-php-ext-enable xdebug
+ENV XDEBUG_MODE=off
 
-# php modules enable
-RUN docker-php-ext-enable \
-    imagick \
-    xdebug \
-    mcrypt
+ADD docker-images/php-extended/conf/php.ini /usr/local/etc/php/conf.d/90-custom.ini
 
-WORKDIR /code
+WORKDIR /var/www
 
-COPY zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && apt-get install nodejs -y
+
+RUN npm install uglify-js webpack webpack-cli -g | npm install
+RUN npm add @babel/runtime
+
+CMD ["php-fpm"]
 
 EXPOSE 9000
+
+FROM runtime AS tools
+USER root
+# Install composer
+ENV COMPOSER_ALLOW_SUPERUSER 1 \
+    COMPOSER_HOME /composer \
+    PATH=$COMPOSER_HOME/vendor/bin:$PATH
+
+RUN curl -sS https://getcomposer.org/installer | php -- \
+  --install-dir=/usr/local/bin \
+  --filename=composer
+
+RUN groupadd -r docker-user && useradd --home /home/docker-user -m -N docker-user
+RUN apt install -y gosu
+COPY docker-images/php-extended/gosu_entrypoint.sh /usr/local/bin/gosu_entrypoint.sh
+RUN chmod +x /usr/local/bin/gosu_entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/gosu_entrypoint.sh"]
