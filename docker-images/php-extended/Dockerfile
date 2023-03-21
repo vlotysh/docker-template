@@ -1,9 +1,7 @@
-# syntax=docker/dockerfile:experimental
-FROM php:8.0-fpm as runtime
+FROM php:8.2-fpm as runtime
 
 MAINTAINER Vladislav Lotysh <lotysh.vm@gmail.com>
 
-USER root
 RUN apt-get update && apt-get install -y \
     ssh \
     curl \
@@ -24,7 +22,6 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get update && apt-get install -y libmemcached-dev zlib1g-dev
 RUN pecl install memcached
 RUN docker-php-ext-enable memcached
-#RUN docker-php-ext-install -j$(nproc) memcached
 
 # Install php extensions
 RUN docker-php-ext-install -j$(nproc) \
@@ -35,10 +32,11 @@ RUN docker-php-ext-install -j$(nproc) \
     bcmath \
     pcntl
 
-#Since xdebug 3.x has mode=off.
-RUN pecl install xdebug && docker-php-ext-enable xdebug
-ENV XDEBUG_MODE=off
+# Install xdebug extension
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
 
+COPY docker-images/php-extended/conf/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 ADD docker-images/php-extended/conf/php.ini /usr/local/etc/php/conf.d/90-custom.ini
 
 WORKDIR /var/www
@@ -53,7 +51,7 @@ CMD ["php-fpm"]
 EXPOSE 9000
 
 FROM runtime AS tools
-USER root
+
 # Install composer
 ENV COMPOSER_ALLOW_SUPERUSER 1 \
     COMPOSER_HOME /composer \
@@ -62,9 +60,3 @@ ENV COMPOSER_ALLOW_SUPERUSER 1 \
 RUN curl -sS https://getcomposer.org/installer | php -- \
   --install-dir=/usr/local/bin \
   --filename=composer
-
-RUN groupadd -r docker-user && useradd --home /home/docker-user -m -N docker-user
-RUN apt install -y gosu
-COPY docker-images/php-extended/gosu_entrypoint.sh /usr/local/bin/gosu_entrypoint.sh
-RUN chmod +x /usr/local/bin/gosu_entrypoint.sh
-ENTRYPOINT ["/usr/local/bin/gosu_entrypoint.sh"]
